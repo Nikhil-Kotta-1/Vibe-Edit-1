@@ -1,0 +1,104 @@
+import Foundation
+import UserNotifications
+
+@MainActor
+enum AppNotifications {
+    private static let enabledKey = "io.vibeedit.app.notifications.enabled"
+
+    static var isEnabled: Bool {
+        get {
+            let defaults = UserDefaults.standard
+            if defaults.object(forKey: enabledKey) == nil { return true }
+            return defaults.bool(forKey: enabledKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: enabledKey)
+        }
+    }
+
+    static func configure() {
+        guard canUseUserNotifications else {
+            Log.app.notice("notifications disabled outside app bundle")
+            return
+        }
+        let center = UNUserNotificationCenter.current()
+        center.delegate = AppNotificationDelegate.shared
+        guard isEnabled else {
+            Log.app.notice("notifications disabled in settings")
+            return
+        }
+        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if let error {
+                Log.app.warning("notification authorization failed error=\(error.localizedDescription)")
+            } else {
+                Log.app.notice("notification authorization \(granted ? "granted" : "denied")")
+            }
+        }
+    }
+
+    static func generationComplete(
+        assetId: String,
+        projectURL: URL?,
+        assetName: String,
+        assetType: ClipType,
+        count: Int
+    ) {
+        guard canUseUserNotifications, isEnabled else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = "Generation complete"
+        content.body = body(assetName: assetName, assetType: assetType, count: count)
+        content.sound = .default
+        var userInfo = ["assetId": assetId]
+        if let projectURL {
+            userInfo["projectPath"] = projectURL.path
+        }
+        content.userInfo = userInfo
+
+        let request = UNNotificationRequest(
+            identifier: "generation-complete-\(UUID().uuidString)",
+            content: content,
+            trigger: nil
+        )
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                Log.app.warning("notification delivery failed error=\(error.localizedDescription)")
+            }
+        }
+    }
+
+    private static var canUseUserNotifications: Bool {
+        Bundle.main.bundleURL.pathExtension == "app"
+            && (Bundle.main.bundleIdentifier?.contains(".") ?? false)
+    }
+
+    private static func body(assetName: String, assetType: ClipType, count: Int) -> String {
+        if count > 1 {
+            return "\(count) \(assetType.rawValue)s are ready in VibeEdit."
+        }
+        let name = assetName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? "Your \(assetType.rawValue) is ready." : "\(name) is ready."
+    }
+}
+
+private final class AppNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
+    @MainActor
+    static let shared = AppNotificationDelegate()
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        await AppNotifications.isEnabled ? [.banner, .sound] : []
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        let userInfo = response.notification.request.content.userInfo
+        let assetId = userInfo["assetId"] as? String
+        let projectURL = (userInfo["projectPath"] as? String).map(URL.init(fileURLWithPath:))
+        await AppState.shared.revealGeneratedAssetFromNotification(assetId: assetId, projectURL: projectURL)
+    }
+}
