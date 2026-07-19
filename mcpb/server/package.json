@@ -1,0 +1,10 @@
+{
+  "name": "vibeedit-mcpb-shim",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Stdio→HTTP shim packaged inside vibeedit.mcpb for Claude Desktop.",
+  "main": "index.js",
+  "dependencies": {
+    "mcp-remote": "0.1.38"
+  }
+}

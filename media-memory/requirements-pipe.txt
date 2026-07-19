@@ -1,0 +1,9 @@
+# Nikhil's pre-processing pipeline (Job A). Install into .venv-pipe.
+# No credentials, no network (except faster-whisper's one-time model download).
+# Needs the ffmpeg BINARY too (brew install ffmpeg / apt-get install ffmpeg) for cut_shot.
+scenedetect[opencv]
+opencv-python
+imagehash
+Pillow
+pillow-heif
+faster-whisper

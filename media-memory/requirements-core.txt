@@ -1,0 +1,12 @@
+# Juan's spine (the credentialed memory service). Install into .venv-core.
+# Vertex AI: legacy `vertexai` ships inside google-cloud-aiplatform.
+# It is being removed ~mid-2026 in favor of `google-genai` (see README "Vertex SDK").
+google-cloud-aiplatform
+redis
+redisvl
+fastapi
+uvicorn[standard]
+numpy
+pillow
+pillow-heif
+python-dotenv

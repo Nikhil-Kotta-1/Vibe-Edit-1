@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+# So `pytest` finds the top-level modules (memory/, serve.py, ingest.py) from this dir.
+pythonpath = ["."]
+testpaths = ["tests"]

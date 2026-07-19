@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "media-memory": {
+      "command": "/Users/nikhilkotta/VibeEditor/media-memory/.venv-core/bin/python",
+      "args": ["/Users/nikhilkotta/VibeEditor/media-memory/mcp_server.py"]
+    },
+    "vibeedit": {
+      "command": "npx",
+      "args": ["mcp-remote", "http://127.0.0.1:19789/mcp"]
+    }
+  }
+}

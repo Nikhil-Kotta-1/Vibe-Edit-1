@@ -1,0 +1,7 @@
+# The MCP glue + stub service (lets one agent call the memory). Install into .venv-glue
+# (or just add to .venv-core for solo work — these are light and version-tolerant).
+fastmcp
+httpx
+fastapi
+uvicorn[standard]
+pytest

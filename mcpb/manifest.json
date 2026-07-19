@@ -1,0 +1,23 @@
+{
+  "manifest_version": "0.4",
+  "name": "vibeedit",
+  "display_name": "VibeEdit",
+  "version": "0.1.0",
+  "description": "Edit your VibeEdit project timeline from Claude Desktop.",
+  "long_description": "Connects Claude Desktop to the local MCP server inside VibeEdit — an AI-native Mac video editor. Once installed, Claude can read your timeline, edit clips, generate media, and manage tracks. Requires VibeEdit to be running with a project open.",
+  "icon": "icon.png",
+  "author": {
+    "name": "VibeEdit",
+    "url": "https://vibeedit.io"
+  },
+  "homepage": "https://vibeedit.io",
+  "keywords": ["video", "editor", "timeline", "creative", "media"],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"]
+    }
+  }
+}
